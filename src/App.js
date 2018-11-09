@@ -15,14 +15,18 @@ class Band extends Component {
 
 class BandList extends Component {
   render() {
-    // const bandList = this.props.bandList.maps(band => {
-    //   return <Band name={band} />
-    // })
+    let bandList = null
+    if (this.props.bandList){
+      const propsBandList = this.props.bandList
+      bandList = propsBandList.map(band => {
+        return <li><Band name={band} /></li>
+      })
+    }
     return (
-      <div className="MatchingButton">
+      <div className="BandList">
         <h2>{this.props.title}</h2>
         <ul>
-          {this.props.bandList}
+          {bandList}
         </ul>
       </div>
     );
@@ -155,9 +159,9 @@ class App extends Component {
           <LoginButton />
             <FindMatchingButton disabled={!this.state.authed} click={this.findMatchingButtonOnClick}/>
         </header>
-        <BandList bandList={this.state.festivalBandList} />
-        <BandList bandList={this.state.userTopBands} />
-        <BandList bandList={this.state.matchingBands} />
+        <BandList title="Glasto" bandList={this.state.festivalBandList} />
+        <BandList title="Your favs" bandList={this.state.userTopBands} />
+        <BandList title="Matching bands" bandList={this.state.matchingBands} />
       </div>
     );
   }
