@@ -1,59 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import logo from './logo.svg';
+import { FindMatchingButton, LoginButton } from './Buttons.js';
+import { BandList } from './BandList.js';
 import './App.css';
 
-class Band extends Component {
-  render(){
-    return (
-      <div className="Band">
-        { this.props.name }
-      </div>
-    )
-  }
-}
-
-class BandList extends Component {
-  render() {
-    let bandList = null
-    if (this.props.bandList){
-      const propsBandList = this.props.bandList
-      bandList = propsBandList.map(band => {
-        return <li><Band name={band} /></li>
-      })
-    }
-    return (
-      <div className="BandList">
-        <h2>{this.props.title}</h2>
-        <ul>
-          {bandList}
-        </ul>
-      </div>
-    );
-  }
-}
-
-class FindMatchingButton extends Component {
-  render() {
-    return (
-      <div className="MatchingButton">
-        <button disabled={this.props.disabled} onClick={this.props.click}>
-          Find matching
-        </button>
-      </div>
-    );
-  }
-}
-
-class LoginButton extends Component {
-  render() {
-    return (
-      <div className="LoginButton">
-        <a href="https://accounts.spotify.com/authorize?client_id=b6f4e429c5484a9c9f773c53c0627d7b&redirect_uri=http:%2F%2Flocalhost:3000%2F&scope=user-top-read&response_type=token&state=123">Login</a>
-      </div>
-    );
-  }
-}
 
 class App extends Component {
   constructor(props){
@@ -80,6 +30,7 @@ class App extends Component {
   getBandsOn(festival){
     if (festival!=='glasto')
       console.log("we're only doing glasto right now")
+
     return [
       'Fleetwood Mac',
       'Eminem',
@@ -93,7 +44,7 @@ class App extends Component {
     const festivalBands = this.state.festivalBandList
     const userTopBands = this.state.userTopBands
 
-    console.log(this.findMatchingBands(festivalBands, userTopBands))
+    this.findMatchingBands(festivalBands, userTopBands)
   }
 
   findMatchingBands(festivalBands, userBands){
@@ -124,7 +75,6 @@ class App extends Component {
       'headers': { 'Authorization': 'Bearer '+ accessToken },
     })
       .then(function (response) {
-        // TODO enable button because we're ready
         const userTopBands = _this.mapApiDataToBandList(response.data)
 
         _this.setState((state, props) => {
@@ -156,12 +106,17 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <LoginButton />
-            <FindMatchingButton disabled={!this.state.authed} click={this.findMatchingButtonOnClick}/>
+
+          { this.state.authed ? null : <LoginButton /> }
+
+          <FindMatchingButton disabled={!this.state.authed} click={this.findMatchingButtonOnClick}/>
+
         </header>
+
         <BandList title="Glasto" bandList={this.state.festivalBandList} />
         <BandList title="Your favs" bandList={this.state.userTopBands} />
         <BandList title="Matching bands" bandList={this.state.matchingBands} />
+
       </div>
     );
   }
