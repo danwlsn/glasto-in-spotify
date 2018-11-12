@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import { FindMatchingButton, LoginButton } from './Buttons.js';
 import { BandList } from './BandList.js';
+import { FestivalSwitcher } from './FestivalSwitcher.js';
 import './App.css';
 
 
@@ -11,12 +12,14 @@ class App extends Component {
     this.state = {
       'authed': false,
       'accessToken': null,
-      'festivalBandList': this.getBandsOn(),
+      'festival': 'Glasto',
+      'festivalBandList': null,
       'userTopBands': null,
       'matchingBands': null
     }
 
     this.findMatchingButtonOnClick = this.findMatchingButtonOnClick.bind(this);
+    this.onFestivalChange = this.onFestivalChange.bind(this);
   }
 
   getAccessToken(hash){
@@ -28,23 +31,43 @@ class App extends Component {
   }
 
   getBandsOn(festival){
-    if (festival!=='glasto')
-      console.log("we're only doing glasto right now")
+    if (festival==='Glasto'){
+      return [
+        'Fleetwood Mac',
+        'Eminem',
+        'Blur',
+        'Radiohead',
+        'Kendrick Lamar'
+      ]
+    } else {
+      return [
+        'Ty Segall',
+        'Tyler The Creator',
+        'Spice Girls'
+      ]
+    }
+  }
 
-    return [
-      'Fleetwood Mac',
-      'Eminem',
-      'Blur',
-      'Radiohead',
-      'Kendrick Lamar'
-    ];
+  onFestivalChange(festival){
+    const bandsOn = this.getBandsOn(festival)
+    this.setState((state, props) => {
+      return {
+        'festival': festival,
+        'festivalBandList': bandsOn,
+        'matchingBands': null
+      }
+    })
   }
 
   findMatchingButtonOnClick(){
     const festivalBands = this.state.festivalBandList
     const userTopBands = this.state.userTopBands
 
-    this.findMatchingBands(festivalBands, userTopBands)
+    const matching = this.findMatchingBands(festivalBands, userTopBands)
+
+    this.setState((state, props) => {
+      return {'matchingBands': matching }
+    })
   }
 
   findMatchingBands(festivalBands, userBands){
@@ -56,17 +79,10 @@ class App extends Component {
       }
     }
 
-    this.setState((state, props) => {
-      return {'matchingBands': matching }
-    })
     return matching
   }
 
-  mapApiDataToBandList(data){
-    return data.items.map(item => item.name)
-  }
-
-  getUserTopArtists(accessToken){
+  getUserTopBands(accessToken){
     const _this = this
 
     axios({
@@ -75,7 +91,7 @@ class App extends Component {
       'headers': { 'Authorization': 'Bearer '+ accessToken },
     })
       .then(function (response) {
-        const userTopBands = _this.mapApiDataToBandList(response.data)
+        const userTopBands = response.data.items.map(item => item.name)
 
         _this.setState((state, props) => {
           return {'userTopBands': userTopBands }
@@ -89,16 +105,19 @@ class App extends Component {
   }
 
   componentDidMount(){
+
+    const bandsOn = this.getBandsOn(this.state.festival)
+    this.setState((state, props) => {
+      return { 'festivalBandList': bandsOn }
+    })
+
     const accessToken = this.getAccessToken(window.location.hash)
 
     if (accessToken != null){
-      this.getUserTopArtists(accessToken)
+      this.getUserTopBands(accessToken)
       this.setState((state, props) => {
         return {'authed': true, 'accessToken': accessToken }
       })
-
-      console.log(this.state)
-
     }
   }
 
@@ -109,13 +128,29 @@ class App extends Component {
 
           { this.state.authed ? null : <LoginButton /> }
 
-          <FindMatchingButton disabled={!this.state.authed} click={this.findMatchingButtonOnClick}/>
+          <FindMatchingButton
+            disabled={!this.state.authed}
+            click={this.findMatchingButtonOnClick}
+          />
+          <FestivalSwitcher
+            list={['Glasto', 'SXSW']} 
+            handleChange={this.onFestivalChange}
+          />
 
         </header>
 
-        <BandList title="Glasto" bandList={this.state.festivalBandList} />
-        <BandList title="Your favs" bandList={this.state.userTopBands} />
-        <BandList title="Matching bands" bandList={this.state.matchingBands} />
+        <BandList
+          title={this.state.festival} 
+          bandList={this.state.festivalBandList}
+        />
+        <BandList
+          title="Your favs"
+          bandList={this.state.userTopBands}
+        />
+        <BandList
+          title="Matching bands"
+          bandList={this.state.matchingBands}
+        />
 
       </div>
     );
