@@ -10,10 +10,10 @@ export const FindMatchingButton = ({disabled, click}) => {
   )
 }
 
-export const LoginButton = () => {
+export const LoginButton = ({ host }) => {
   return (
     <div className="LoginButton">
-      <a href="https://accounts.spotify.com/authorize?client_id=b6f4e429c5484a9c9f773c53c0627d7b&redirect_uri=http:%2F%2Flocalhost:3000%2F&scope=user-top-read&response_type=token&state=123">Login</a>
+      <a href={"https://accounts.spotify.com/authorize?client_id=b6f4e429c5484a9c9f773c53c0627d7b&redirect_uri=http:%2F%2F" + host + "%2F&scope=user-read-playback-state&response_type=token&state=123"}>Login</a>
     </div>
   )
 }

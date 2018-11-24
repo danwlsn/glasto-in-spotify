@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FindMatchingButton, LoginButton } from './Buttons.js';
 import { BandList } from './BandList.js';
 import { FestivalSwitcher } from './FestivalSwitcher.js';
+import PlayButton from './PlayButton.js';
 import './App.css';
 
 
@@ -122,22 +123,29 @@ class App extends Component {
   }
 
   render() {
+    var divStyle = {
+      marginTop: '400px'
+    };
+
     return (
+
       <div className="App">
         <header className="App-header">
 
-          { this.state.authed ? null : <LoginButton /> }
+          { this.state.authed ? null : <LoginButton host={window.location.host}/> }
 
-          <FindMatchingButton
-            disabled={!this.state.authed}
-            click={this.findMatchingButtonOnClick}
-          />
-          <FestivalSwitcher
-            list={['Glasto', 'SXSW']} 
-            handleChange={this.onFestivalChange}
-          />
 
+          <PlayButton accessToken={ this.state.accessToken }/>
         </header>
+        <h1 style={ divStyle }>Glasto in Spotify</h1>
+        <FindMatchingButton
+          disabled={!this.state.authed}
+          click={this.findMatchingButtonOnClick}
+        />
+        <FestivalSwitcher
+          list={['Glasto', 'SXSW']} 
+          handleChange={this.onFestivalChange}
+        />
 
         <BandList
           title={this.state.festival} 
